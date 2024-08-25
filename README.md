@@ -1,0 +1,5 @@
+make
+
+./grafo
+
+make clean
