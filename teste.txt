@@ -1,0 +1,57 @@
+Iniciando DFS a partir do vértice 127
+DFS concluída!
+Sucessores do vertice 127: 3000 7549 7670 9201 9251 9796 11452 11853 12112 12389 12440 13543 13868 14022 14222 14252 14266 15165 17805 19672 20303 20573 23278 23294 30239 30661 34697 36728 37281 37624 37843 38181 38390 38925 39067 40499 40703 43983 44344 44570 47078 
+Predecessores do vertice 127: 3174 7580 13966 15744 16736 25097 34686 41539 45132 45669 49132 
+Grau de saida do vertice 127: 41
+Grau de entrada do vertice 127: 11
+
+Classificação das arestas divergentes do vértice 127:
+127 -> 3000: Aresta de Árvore
+127 -> 7549: Aresta de Árvore
+127 -> 7670: Aresta de Árvore
+127 -> 9201: Aresta de Árvore
+127 -> 9251: Aresta de Árvore
+127 -> 9796: Aresta de Árvore
+127 -> 11452: Aresta de Árvore
+127 -> 11853: Aresta de Árvore
+127 -> 12112: Aresta de Árvore
+127 -> 12389: Aresta de Árvore
+127 -> 12440: Aresta de Árvore
+127 -> 13543: Aresta de Árvore
+127 -> 13868: Aresta de Árvore
+127 -> 14022: Aresta de Árvore
+127 -> 14222: Aresta de Árvore
+127 -> 14252: Aresta de Árvore
+127 -> 14266: Aresta de Árvore
+127 -> 15165: Aresta de Árvore
+127 -> 17805: Aresta de Árvore
+127 -> 19672: Aresta de Árvore
+127 -> 20303: Aresta de Árvore
+127 -> 20573: Aresta de Árvore
+127 -> 23278: Aresta de Árvore
+127 -> 23294: Aresta de Árvore
+127 -> 30239: Aresta de Árvore
+127 -> 30661: Aresta de Árvore
+127 -> 34697: Aresta de Árvore
+127 -> 36728: Aresta de Árvore
+127 -> 37281: Aresta de Árvore
+127 -> 37624: Aresta de Árvore
+127 -> 37843: Aresta de Árvore
+127 -> 38181: Aresta de Árvore
+127 -> 38390: Aresta de Árvore
+127 -> 38925: Aresta de Árvore
+127 -> 39067: Aresta de Árvore
+127 -> 40499: Aresta de Árvore
+127 -> 40703: Aresta de Árvore
+127 -> 43983: Aresta de Árvore
+127 -> 44344: Aresta de Árvore
+127 -> 44570: Aresta de Árvore
+127 -> 47078: Aresta de Árvore
+
+Classificação das Arestas:
+
+Resumo das Arestas Classificadas:
+Arestas de Árvore: 440424
+Arestas de Retorno: 0
+Arestas de Avanço: 2554020
+Arestas Cruzadas: 5974595
