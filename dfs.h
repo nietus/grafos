@@ -1,37 +1,38 @@
+// dfs.h
 #ifndef DFS_H
 #define DFS_H
 
 #include "graph.h"
 
-// Tipos de arestas
-typedef enum {
-    TREE,
-    BACK,
-    FORWARD,
-    CROSS
-} EdgeType;
+// Cores para DFS
+typedef enum { WHITE, GRAY, BLACK } Color;
 
-// Estrutura para armazenar informações das arestas classificadas
+// Estrutura para armazenar informações de cada vértice
+typedef struct VertexInfo {
+    Color color;
+    int discoveryTime;
+    int finishTime;
+    int parent;
+} VertexInfo;
+
+// Estrutura para classificar as arestas
 typedef struct EdgeClassification {
     int u;
     int v;
-    EdgeType type;
+    char type[20];
     struct EdgeClassification* next;
 } EdgeClassification;
 
 // Função para realizar a DFS
-void DFS(Node* adjList[], int numVertices, int startVertex, EdgeClassification** edgeClassList, VertexInfo info[], int* timeCounter);
+void DFS(Node* adjList[], int numVertices, int startVertex, 
+         EdgeClassification** edgeClassList, VertexInfo info[], 
+         int* timeCounter, int traversal[], int* traversalIndex);
 
-// Função para adicionar uma aresta classificada à lista
-void addClassifiedEdge(EdgeClassification** list, int u, int v, EdgeType type);
+// Função para classificar as arestas divergentes de um vértice específico
+void classifyOutgoingEdges(Node* adjList[], VertexInfo info[], 
+                           int vertice, EdgeClassification** edgeClassList);
 
-// Função para exibir as arestas de árvore
-void displayTreeEdges(EdgeClassification* edgeClassList);
-
-// Função para exibir todas as classificações de arestas
+// Função para exibir as arestas classificadas
 void displayClassifiedEdges(EdgeClassification* edgeClassList);
 
-// Função para classificar e exibir as arestas divergentes do vértice
-void classifyOutgoingEdges(Node* adjList[], VertexInfo info[], int numVertices, int vertice, EdgeClassification* edgeClassList);
-
-#endif
+#endif // DFS_H

@@ -1,180 +1,112 @@
+// dfs.c
 #include "dfs.h"
-#include "stack.h"
+#include <string.h>
 
-void DFS_Visit_Iterative(Node *adjList[], int startVertex, EdgeClassification **edgeClassList, VertexInfo info[], int *timeCounter)
-{
-    StackNode *stack = NULL;
-    push(&stack, startVertex); // Empurrando o vértice inicial na pilha
-
-    while (!isEmpty(stack))
-    {
-        int u = pop(&stack); // Desempilha o próximo vértice a ser processado
-
-        if (info[u].discover == 0)
-        {
-            info[u].discover = ++(*timeCounter);
-            //printf("Visitando o vértice %d (Descoberto: %d)\n", u, info[u].discover);
-        }
-
-        Node *temp = adjList[u];
-        while (temp)
-        {
-            int v = temp->vertice;
-
-            if (info[v].discover == 0)
-            {
-                // Aresta de árvore
-                push(&stack, v);
-                addClassifiedEdge(edgeClassList, u, v, TREE);
-            }
-            else if (info[v].finish == 0)
-            {
-                // Aresta de retorno
-                addClassifiedEdge(edgeClassList, u, v, BACK);
-            }
-            else if (info[u].discover < info[v].discover && info[v].finish != 0)
-            {
-                // Aresta de avanço (v já foi explorado e u foi descoberto antes de v)
-                addClassifiedEdge(edgeClassList, u, v, FORWARD);
-            }
-            else
-            {
-                // Aresta cruzada (u e v não fazem parte da mesma árvore de recursão)
-                addClassifiedEdge(edgeClassList, u, v, CROSS);
-            }
-
-            temp = temp->next;
-        }
-
-        info[u].finish = ++(*timeCounter);
-        //printf("Finalizando o vértice %d (Finalizado: %d)\n", u, info[u].finish);
-    }
-}
-
-// Função para classificar e exibir as arestas divergentes do vértice
-void classifyOutgoingEdges(Node *adjList[], VertexInfo info[], int numVertices, int vertice, EdgeClassification *edgeClassList)
-{
-    printf("\nClassificação das arestas divergentes do vértice %d:\n", vertice);
-    Node *temp = adjList[vertice];
-    if (!temp)
-    {
-        printf("Nenhuma aresta divergente encontrada para o vértice %d.\n", vertice);
-        return;
-    }
-    while (temp)
-    {
-        int v = temp->vertice;
-        // Encontrar a classificação da aresta (vertice -> v)
-        EdgeClassification *current = edgeClassList;
-        EdgeType type = CROSS; // Padrão
-        while (current)
-        {
-            if (current->u == vertice && current->v == v)
-            {
-                type = current->type;
-                break;
-            }
-            current = current->next;
-        }
-        // Exibir a classificação
-        printf("%d -> %d: ", vertice, v);
-        switch (type)
-        {
-        case TREE:
-            printf("Aresta de Árvore");
-            break;
-        case BACK:
-            printf("Aresta de Retorno");
-            break;
-        case FORWARD:
-            printf("Aresta de Avanço");
-            break;
-        case CROSS:
-            printf("Aresta de Cruzamento");
-            break;
-        }
-        printf("\n");
-        temp = temp->next;
-    }
-}
-
-// Função para adicionar uma aresta classificada à lista
-void addClassifiedEdge(EdgeClassification **list, int u, int v, EdgeType type)
-{
-    EdgeClassification *newEdge = (EdgeClassification *)malloc(sizeof(EdgeClassification));
-    if (!newEdge)
-    {
+// Função para adicionar uma aresta classificada à lista (append)
+void addClassifiedEdge(EdgeClassification** edgeClassList, int u, int v, const char* type) {
+    EdgeClassification* newEdge = (EdgeClassification*)malloc(sizeof(EdgeClassification));
+    if (!newEdge) {
         printf("Erro na alocação de memória para EdgeClassification.\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     newEdge->u = u;
     newEdge->v = v;
-    newEdge->type = type;
-    newEdge->next = *list;
-    *list = newEdge;
+    strncpy(newEdge->type, type, sizeof(newEdge->type));
+    newEdge->type[sizeof(newEdge->type) - 1] = '\0';
+    newEdge->next = NULL;
 
-    //printf("Aresta adicionada: %d -> %d (Tipo: %d)\n", u, v, type);
-}
-
-// Função principal da DFS
-void DFS(Node *adjList[], int numVertices, int startVertex, EdgeClassification **edgeClassList, VertexInfo info[], int *timeCounter)
-{
-    // Inicializar informações dos vértices
-    for (int i = 1; i <= numVertices; i++)
-    {
-        info[i].discover = 0;
-        info[i].finish = 0;
-        info[i].parent = -1;
+    if (*edgeClassList == NULL) {
+        *edgeClassList = newEdge;
+    } else {
+        EdgeClassification* temp = *edgeClassList;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newEdge;
     }
-
-    printf("Iniciando DFS a partir do vértice %d\n", startVertex);
-    DFS_Visit_Iterative(adjList, startVertex, edgeClassList, info, timeCounter);
-    printf("DFS concluída!\n");
 }
 
-// Função para exibir todas as classificações de arestas
-void displayClassifiedEdges(EdgeClassification *edgeClassList)
-{
-    int treeCount = 0, backCount = 0, forwardCount = 0, crossCount = 0;
+// Função recursiva auxiliar para DFS
+void DFSVisit(Node* adjList[], int u, VertexInfo info[], int* timeCounter, 
+              EdgeClassification** edgeClassList, int traversal[], int* traversalIndex) {
+    info[u].color = GRAY;
+    info[u].discoveryTime = ++(*timeCounter);
+    traversal[(*traversalIndex)++] = u; // Adiciona o vértice à caminhada
 
-    printf("\nClassificação das Arestas:\n");
-    EdgeClassification *temp = edgeClassList;
-    while (temp)
-    {
-        //printf("%d -> %d: ", temp->u, temp->v);
-        switch (temp->type)
-        {
-        case TREE:
-            //printf("Aresta de Árvore\n");
-            treeCount++;
-            break;
-        case BACK:
-            //printf("Aresta de Retorno\n");
-            backCount++;
-            break;
-        case FORWARD:
-            //printf("Aresta de Avanço\n");
-            forwardCount++;
-            break;
-        case CROSS:
-            //printf("Aresta Cruzada\n");
-            crossCount++;
-            break;
-        default:
-            //printf("Tipo desconhecido\n");
-            break;
+    Node* temp = adjList[u];
+    while (temp) {
+        int v = temp->vertex;
+        if (info[v].color == WHITE) {
+            info[v].parent = u;
+            // Aresta de árvore
+            addClassifiedEdge(edgeClassList, u, v, "Tree Edge");
+            DFSVisit(adjList, v, info, timeCounter, edgeClassList, traversal, traversalIndex);
+        } else if (info[v].color == GRAY) {
+            // Aresta de retorno
+            addClassifiedEdge(edgeClassList, u, v, "Back Edge");
+        } else if (info[v].discoveryTime > info[u].discoveryTime && 
+                   info[v].finishTime < info[u].finishTime) {
+            // Aresta para frente
+            addClassifiedEdge(edgeClassList, u, v, "Forward Edge");
+        } else {
+            // Aresta cruzada
+            addClassifiedEdge(edgeClassList, u, v, "Cross Edge");
         }
         temp = temp->next;
     }
 
-    // Exibir o número total de cada tipo de aresta classificada
-    printf("\nResumo das Arestas Classificadas:\n");
-    printf("Arestas de Árvore: %d\n", treeCount);
-    printf("Arestas de Retorno: %d\n", backCount);
-    printf("Arestas de Avanço: %d\n", forwardCount);
-    printf("Arestas Cruzadas: %d\n", crossCount);
-    if (treeCount == 0 && backCount == 0 && forwardCount == 0 && crossCount == 0)
-    {
-        printf("Nenhuma aresta classificada.\n");
+    info[u].color = BLACK;
+    info[u].finishTime = ++(*timeCounter);
+}
+
+// Função para realizar a DFS
+void DFS(Node* adjList[], int numVertices, int startVertex, 
+         EdgeClassification** edgeClassList, VertexInfo info[], 
+         int* timeCounter, int traversal[], int* traversalIndex) {
+    // Inicializa as informações dos vértices
+    for (int i = 1; i <= numVertices; i++) {
+        info[i].color = WHITE;
+        info[i].discoveryTime = 0;
+        info[i].finishTime = 0;
+        info[i].parent = -1;
+    }
+
+    // Inicia a DFS a partir do vértice especificado
+    DFSVisit(adjList, startVertex, info, timeCounter, edgeClassList, traversal, traversalIndex);
+
+    // Continua a DFS para quaisquer vértices não visitados, em ordem crescente
+    for (int i = 1; i <= numVertices; i++) {
+        if (info[i].color == WHITE) {
+            DFSVisit(adjList, i, info, timeCounter, edgeClassList, traversal, traversalIndex);
+        }
+    }
+}
+
+// Função para classificar as arestas divergentes de um vértice específico
+void classifyOutgoingEdges(Node* adjList[], VertexInfo info[], 
+                           int vertice, EdgeClassification** edgeClassList) {
+    Node* temp = adjList[vertice];
+    while (temp) {
+        int v = temp->vertex;
+        if (info[v].parent == vertice) {
+            addClassifiedEdge(edgeClassList, vertice, v, "Tree Edge");
+        } else if (info[v].color == GRAY) {
+            addClassifiedEdge(edgeClassList, vertice, v, "Back Edge");
+        } else if (info[v].discoveryTime > info[vertice].discoveryTime && 
+                   info[v].finishTime < info[vertice].finishTime) {
+            addClassifiedEdge(edgeClassList, vertice, v, "Forward Edge");
+        } else {
+            addClassifiedEdge(edgeClassList, vertice, v, "Cross Edge");
+        }
+        temp = temp->next;
+    }
+}
+
+// Função para exibir as arestas classificadas
+void displayClassifiedEdges(EdgeClassification* edgeClassList) {
+    EdgeClassification* temp = edgeClassList;
+    while (temp) {
+        printf("%s: %d-->%d\n", temp->type, temp->u, temp->v);
+        temp = temp->next;
     }
 }

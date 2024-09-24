@@ -1,32 +1,45 @@
+// graph.c
 #include "graph.h"
-
-// Função para criar um novo nó na lista de adjacências
-Node* createNode(int v) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    if (!newNode) {
-        printf("Erro na alocação de memória.\n");
-        exit(1);
-    }
-    newNode->vertice = v;
-    newNode->next = NULL;
-    return newNode;
-}
 
 // Função para adicionar uma aresta ao grafo
 void addEdge(Node* adjList[], int u, int v) {
-    // Adicionando v à lista de adjacência de u
-    Node* newNode = createNode(v);
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (!newNode) {
+        printf("Erro na alocação de memória para novo nó.\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->vertex = v;
     newNode->next = adjList[u];
     adjList[u] = newNode;
 }
 
-// Função para ordenar a lista de adjacência em ordem crescente (lexicográfica)
+// Função para comparar dois inteiros (usada na ordenação)
+int compare(const void* a, const void* b) {
+    int int_a = *(int*)a;
+    int int_b = *(int*)b;
+    if (int_a < int_b)
+        return -1;
+    else if (int_a > int_b)
+        return 1;
+    else
+        return 0;
+}
+
+// Função para liberar uma única lista de adjacência
+void freeAdjList(Node* adjList[], int vertex) {
+    Node* temp = adjList[vertex];
+    while (temp) {
+        Node* toFree = temp;
+        temp = temp->next;
+        free(toFree);
+    }
+    adjList[vertex] = NULL;
+}
+
+// Função para ordenar as listas de adjacência em ordem crescente
 void sortAdjacencyList(Node* adjList[], int numVertices) {
     for (int i = 1; i <= numVertices; i++) {
-        if (adjList[i] == NULL || adjList[i]->next == NULL)
-            continue;
-
-        // Converter a lista para um array para facilitar a ordenação
+        // Primeiro, conta o número de adjacências
         int count = 0;
         Node* temp = adjList[i];
         while (temp) {
@@ -34,78 +47,73 @@ void sortAdjacencyList(Node* adjList[], int numVertices) {
             temp = temp->next;
         }
 
-        int* arr = (int*)malloc(count * sizeof(int));
-        if (!arr) {
-            printf("Erro na alocação de memória para ordenação.\n");
-            exit(1);
-        }
-
-        temp = adjList[i];
-        for (int j = 0; j < count; j++) {
-            arr[j] = temp->vertice;
-            temp = temp->next;
-        }
-
-        // Ordenar o array usando Bubble Sort (para simplicidade)
-        for (int j = 0; j < count - 1; j++) {
-            for (int k = j + 1; k < count; k++) {
-                if (arr[j] > arr[k]) {
-                    int aux = arr[j];
-                    arr[j] = arr[k];
-                    arr[k] = aux;
-                }
+        if (count > 1) {
+            // Coleta os vértices em um array
+            int* vertices = (int*)malloc(count * sizeof(int));
+            if (!vertices) {
+                printf("Erro na alocação de memória para ordenação.\n");
+                exit(EXIT_FAILURE);
             }
-        }
 
-        // Reconstruir a lista ordenada
-        // Liberar a lista existente
-        temp = adjList[i];
-        while (temp) {
-            Node* toFree = temp;
-            temp = temp->next;
-            free(toFree);
-        }
-        adjList[i] = NULL;
+            temp = adjList[i];
+            for (int j = 0; j < count; j++) {
+                vertices[j] = temp->vertex;
+                temp = temp->next;
+            }
 
-        // Adicionar os elementos ordenados à lista
-        for (int j = count - 1; j >= 0; j--) {
-            Node* newNode = createNode(arr[j]);
-            newNode->next = adjList[i];
-            adjList[i] = newNode;
-        }
+            // Ordena o array
+            qsort(vertices, count, sizeof(int), compare);
 
-        free(arr);
+            // Liberar a lista de adjacência atual
+            freeAdjList(adjList, i);
+
+            // Reconstrói a lista de adjacência ordenada
+            adjList[i] = NULL;
+            for (int j = count - 1; j >= 0; j--) { // Inserir em ordem reversa para manter ordem crescente
+                Node* newNode = (Node*)malloc(sizeof(Node));
+                if (!newNode) {
+                    printf("Erro na alocação de memória para novo nó.\n");
+                    exit(EXIT_FAILURE);
+                }
+                newNode->vertex = vertices[j];
+                newNode->next = adjList[i];
+                adjList[i] = newNode;
+            }
+
+            free(vertices);
+        }
     }
 }
 
-// Função para calcular e exibir as propriedades do vértice
-void calculateVerticeProperties(Node* adjList[], int numVertices, int vertice) {
-    int outDegree = 0;
-    int inDegree = 0;
-
-    printf("Sucessores do vertice %d: ", vertice);
-    Node* temp = adjList[vertice];
-    while (temp) {
-        outDegree++;
-        printf("%d ", temp->vertice);
-        temp = temp->next;
-    }
-    printf("\n");
-
-    printf("Predecessores do vertice %d: ", vertice);
+// Função para liberar a memória da lista de adjacência
+void freeAdjacencyList(Node* adjList[], int numVertices) {
     for (int i = 1; i <= numVertices; i++) {
-        temp = adjList[i];
+        freeAdjList(adjList, i);
+    }
+}
+
+// Função para obter os predecessores de um vértice
+int* getPredecessors(Node* adjList[], int numVertices, int vertex, int* count) {
+    int* predecessors = NULL;
+    *count = 0;
+
+    for (int u = 1; u <= numVertices; u++) {
+        Node* temp = adjList[u];
         while (temp) {
-            if (temp->vertice == vertice) {
-                inDegree++;
-                printf("%d ", i);
-                break;
+            if (temp->vertex == vertex) {
+                int* tempPredecessors = (int*)realloc(predecessors, (*count + 1) * sizeof(int));
+                if (!tempPredecessors) {
+                    printf("Erro na alocação de memória para predecessores.\n");
+                    free(predecessors);
+                    exit(EXIT_FAILURE);
+                }
+                predecessors = tempPredecessors;
+                predecessors[*count] = u;
+                (*count)++;
             }
             temp = temp->next;
         }
     }
-    printf("\n");
 
-    printf("Grau de saida do vertice %d: %d\n", vertice, outDegree);
-    printf("Grau de entrada do vertice %d: %d\n", vertice, inDegree);
+    return predecessors;
 }

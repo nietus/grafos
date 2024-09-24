@@ -1,35 +1,16 @@
-# Nome do compilador
+# Makefile
 CC = gcc
+CFLAGS = -Wall -Wextra -std=c99
+DEPS = graph.h dfs.h
+OBJ = main.o graph.o dfs.o
 
-# Flags de compilação
-CFLAGS = -Wall -g
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
-# Arquivos de objeto
-OBJ = main.o graph.o dfs.o stack.o
+programa: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS)
 
-# Nome do executável
-EXEC = grafo
+.PHONY: clean
 
-# Regra padrão para compilar o programa
-$(EXEC): $(OBJ)
-	$(CC) $(CFLAGS) -o $(EXEC) $(OBJ)
-
-# Compilando main.c
-main.o: main.c graph.h dfs.h
-	$(CC) $(CFLAGS) -c main.c
-
-# Compilando graph.c
-graph.o: graph.c graph.h
-	$(CC) $(CFLAGS) -c graph.c
-
-# Compilando dfs.c
-dfs.o: dfs.c dfs.h graph.h stack.h
-	$(CC) $(CFLAGS) -c dfs.c
-
-# Compilando stack.c
-stack.o: stack.c stack.h
-	$(CC) $(CFLAGS) -c stack.c
-
-# Limpeza dos arquivos temporários
 clean:
-	rm -f $(OBJ) $(EXEC)
+	rm -f *.o programa
