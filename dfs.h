@@ -33,6 +33,6 @@ void classifyOutgoingEdges(Node* adjList[], VertexInfo info[],
                            int vertice, EdgeClassification** edgeClassList);
 
 // Função para exibir as arestas classificadas
-void displayClassifiedEdges(EdgeClassification* edgeClassList);
+void displayClassifiedEdges(EdgeClassification* edgeClassList, int chosenVertex);
 
 #endif // DFS_H

@@ -26,7 +26,6 @@ void addClassifiedEdge(EdgeClassification** edgeClassList, int u, int v, const c
     }
 }
 
-// Função recursiva auxiliar para DFS
 void DFSVisit(Node* adjList[], int u, VertexInfo info[], int* timeCounter, 
               EdgeClassification** edgeClassList, int traversal[], int* traversalIndex) {
     info[u].color = GRAY;
@@ -44,11 +43,10 @@ void DFSVisit(Node* adjList[], int u, VertexInfo info[], int* timeCounter,
         } else if (info[v].color == GRAY) {
             // Aresta de retorno
             addClassifiedEdge(edgeClassList, u, v, "Back Edge");
-        } else if (info[v].discoveryTime > info[u].discoveryTime && 
-                   info[v].finishTime < info[u].finishTime) {
+        } else if (info[v].color == BLACK && info[u].discoveryTime < info[v].discoveryTime) {
             // Aresta para frente
             addClassifiedEdge(edgeClassList, u, v, "Forward Edge");
-        } else {
+        } else if (info[v].color == BLACK) {
             // Aresta cruzada
             addClassifiedEdge(edgeClassList, u, v, "Cross Edge");
         }
@@ -102,11 +100,14 @@ void classifyOutgoingEdges(Node* adjList[], VertexInfo info[],
     }
 }
 
-// Função para exibir as arestas classificadas
-void displayClassifiedEdges(EdgeClassification* edgeClassList) {
+// Função para exibir apenas arestas de árvore ou arestas que saem diretamente de um vértice específico
+void displayClassifiedEdges(EdgeClassification* edgeClassList, int chosenVertex) {
     EdgeClassification* temp = edgeClassList;
     while (temp) {
-        printf("%s: %d-->%d\n", temp->type, temp->u, temp->v);
+        // Verifica se é uma Tree Edge ou se sai diretamente do vértice escolhido
+        if (strcmp(temp->type, "Tree Edge") == 0 || temp->u == chosenVertex) {
+            printf("%s: %d-->%d\n", temp->type, temp->u, temp->v);
+        }
         temp = temp->next;
     }
 }

@@ -7,7 +7,7 @@
 
 int main() {
     char* filename = "data/graph-test-100-1.txt";
-    int vertice = 1;
+    int vertice = 45;
 
     // Abrindo o arquivo
     FILE* file = fopen(filename, "r");
@@ -77,11 +77,11 @@ int main() {
     }
     int traversalIndex = 0;
 
-    DFS(adjList, numVertices, vertice, &edgeClassList, info, &timeCounter, traversal, &traversalIndex);
+    DFS(adjList, numVertices, 1, &edgeClassList, info, &timeCounter, traversal, &traversalIndex);
 
     // Exibindo as arestas classificadas
     printf("\n");
-    displayClassifiedEdges(edgeClassList);
+    displayClassifiedEdges(edgeClassList, vertice);
 
     // Exibindo a caminhada da DFS
     printf("\nDFS Traversal: [");
