@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <limits.h>
 
+// Transporte usando dual-matrix
+
 #define MAX 10
 
 typedef struct {
