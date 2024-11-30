@@ -11,7 +11,7 @@ typedef struct {
     int oferta[MAX];
     int demanda[MAX];
     int custo[MAX][MAX];
-    int dual[MAX][MAX]; // Dual Matrix
+    int dual[MAX][MAX];
 } Transporte;
 
 // Função para ler os dados do usuário
